@@ -1,2 +1,2 @@
 # ElytraGo
-Minecraft serrver made in go, faster and better!
+Minecraft server made in go, faster and better!
