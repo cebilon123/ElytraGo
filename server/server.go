@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/cebilon123/ElytraGo/connection"
+	"github.com/cebilon123/ElytraGo/conn"
 	"net"
 )
 
@@ -37,7 +37,7 @@ func (s Builder) Start() {
 		if err != nil {
 			return
 		}
-		go connection.HandleConnection(c)
+		go conn.HandleConnection(c)
 	}
 }
 

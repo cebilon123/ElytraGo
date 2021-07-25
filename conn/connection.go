@@ -1,4 +1,4 @@
-package connection
+package conn
 
 import (
 	"bufio"
@@ -31,20 +31,32 @@ type Status struct {
 }
 
 func HandleConnection(c net.Conn) {
-	//fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
+	fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
 
 	for {
-		res := make([]byte, 32)
-		_, err := bufio.NewReader(c).Read(res)
+		length := make([]byte, 1)
+		reader := bufio.NewReader(c)
+		_, err := reader.Read(length)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("\nLength: %v\n", length[0])
+
+		packet := make([]byte, length[0])
+		_, err = reader.Read(packet)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
-		if res[1] == 0x00 {
-			fmt.Printf("\n%#v", res)
-			fmt.Printf(" (string) %s\n", res)
-		}
+		fmt.Print(packet)
+		fmt.Printf(" as string -> %v\n", string(packet))
+
+		//if res[1] == 0x00 {
+		//	fmt.Printf("\n%#v", res)
+		//	fmt.Printf(" (string) %s\n", res)
+		//}
 	}
 
 	c.Close()
