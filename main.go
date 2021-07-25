@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("Starting ElytraGO on port: 8084")
+	fmt.Printf("Starting ElytraGO on port: 9999")
 
-	server.New().Create().Start()
+	server.NewBuilder().Create().Start()
 }
