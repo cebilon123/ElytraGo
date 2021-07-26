@@ -7,11 +7,17 @@ import (
 	"net"
 )
 
+// Connection stores all information about current connection.
+//	PacketsFC is channel for packets which comes from client (needs to be handled by server)
+// 	PacketsFS is channel for packets which comes from server (needs to be send to client)
 type Connection struct {
-
+	PacketsFC chan packet.IPacket
+	PacketsFS chan packet.IPacket
 }
 
+// HandleConnection handles connection client->server and vice versa
 func HandleConnection(c net.Conn) {
+	defer c.Close()
 	fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
 
 	for {
@@ -30,10 +36,8 @@ func HandleConnection(c net.Conn) {
 			return
 		}
 
-		pct := packet.NewPacket(pctBytes)
+		pct := packet.NewPacket(pctBytes, true)
 
 		fmt.Printf("Length: %d | %#v, %s %s, Type: %v\n", length, pctBytes, "string ->", string(pctBytes), pct.GetType())
 	}
-
-	c.Close()
 }
