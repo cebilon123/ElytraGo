@@ -34,7 +34,6 @@ func (b *buffer) Len() int32 {
 func (b *buffer) pullNext() byte {
 	if b.iIndex >= b.Len() {
 		return 0
-		// panic("reached end of buffer")
 	}
 
 	next := b.bArray[b.iIndex]
