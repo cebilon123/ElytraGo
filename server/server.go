@@ -27,7 +27,9 @@ func (s Builder) Create() IBaseServerBuilder {
 func (s Builder) Start() {
 	clSrvChan := packet.NewClSrvChan()
 	defer clSrvChan.Close()
-	go clSrvChan.RegisterHandlers()
+
+	// We are starting here to listen for packets on channels,
+	go clSrvChan.StartPacketListeningAndHandling()
 
 	l, err := net.Listen("tcp", ":9999")
 	defer l.Close()
