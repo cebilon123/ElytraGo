@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/cebilon123/ElytraGo/conn"
+	"github.com/cebilon123/ElytraGo/packet"
 	"net"
 )
 
@@ -24,20 +25,23 @@ func (s Builder) Create() IBaseServerBuilder {
 }
 
 func (s Builder) Start() {
+	clSrvChan := packet.NewClSrvChan()
+	defer clSrvChan.Close()
+	go clSrvChan.HandleChannelsCommunication()
+
 	l, err := net.Listen("tcp", ":9999")
+	defer l.Close()
 
 	if err != nil {
 		return
 	}
-
-	defer l.Close()
 
 	for {
 		c, err := l.Accept()
 		if err != nil {
 			return
 		}
-		go conn.HandleConnection(c)
+		go conn.HandleConnection(c, *clSrvChan)
 	}
 }
 
