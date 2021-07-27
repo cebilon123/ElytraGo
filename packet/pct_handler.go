@@ -32,7 +32,7 @@ func (c ClSrvChan) StartPacketListeningAndHandling() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	cHan := &ClientHandler{&wg}
+	cHan := &ClientHandler{&wg, c.PacketsTC}
 	sHan := &ServerHandler{&wg}
 
 	select {
