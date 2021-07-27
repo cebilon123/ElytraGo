@@ -26,14 +26,14 @@ func (c ClSrvChan) Close() error {
 	return nil
 }
 
-// HandleChannelsCommunication registers handlers for channel communication.
+// RegisterHandlers registers handlers for channel communication.
 // 	See code for information which handlers are being used.
-func (c ClSrvChan) HandleChannelsCommunication() {
+func (c ClSrvChan) RegisterHandlers() {
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	cHan := &ClientHandler{}
-	sHan := &ServerHandler{}
+	cHan := &ClientHandler{&wg}
+	sHan := &ServerHandler{&wg}
 
 	select {
 	case <-c.PacketsFC:

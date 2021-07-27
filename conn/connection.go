@@ -28,7 +28,10 @@ func HandleConnection(c net.Conn, clSrvChan packet.ClSrvChan) {
 			return
 		}
 
+		//Create packet based on bytes
 		pct := packet.NewPacket(pctBytes, true)
+
+		//Packets being send through channel in goroutine
 		go func() {
 			clSrvChan.PacketsFC <- pct
 		}()

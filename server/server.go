@@ -27,7 +27,7 @@ func (s Builder) Create() IBaseServerBuilder {
 func (s Builder) Start() {
 	clSrvChan := packet.NewClSrvChan()
 	defer clSrvChan.Close()
-	go clSrvChan.HandleChannelsCommunication()
+	go clSrvChan.RegisterHandlers()
 
 	l, err := net.Listen("tcp", ":9999")
 	defer l.Close()

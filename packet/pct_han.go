@@ -24,12 +24,14 @@ type IServerHandler interface {
 
 // ClientHandler is handler for all packets which comes from client
 type ClientHandler struct {
-	Wg sync.WaitGroup
+	Wg *sync.WaitGroup
 }
 
+// Handle handles packets being send through channel for client
 func (c *ClientHandler) Handle(pctChan <-chan IPacket) {
 	defer c.Wg.Done()
 	for pct := range pctChan {
+		//Here we need to choose strategy for every type of packets, execute it and ev. make a response
 		fmt.Printf("Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", pct.GetPid(), pct.GetType(), pct.GetPayload(), string(pct.GetPayload()))
 	}
 }
@@ -37,12 +39,14 @@ func (c *ClientHandler) Handle(pctChan <-chan IPacket) {
 // ServerHandler is handler for all packets which comes from server and need
 // to be send to client
 type ServerHandler struct {
-	Wg sync.WaitGroup
+	Wg *sync.WaitGroup
 }
 
+// Handle handles packets being send through channel for server
 func (s *ServerHandler) Handle(pctChan <-chan IPacket) {
 	defer s.Wg.Done()
 	for pct := range pctChan {
+		//Here we need to choose strategy for every type of packets, execute it and ev. make a response
 		fmt.Printf("Server-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", pct.GetPid(), pct.GetType(), pct.GetPayload(), string(pct.GetPayload()))
 	}
 }
