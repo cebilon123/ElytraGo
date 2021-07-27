@@ -41,6 +41,7 @@ const (
 	Default Type = iota
 	HandshakeC
 	HandshakeS
+	ServerStatusC
 )
 
 // NewPacket creates Packet, which type is being resolved based on Packet []byte.
@@ -77,7 +78,11 @@ func NewPacket(packet []byte, clientPct bool) IPacket {
 func resolveClientPacket(packet []byte) Type {
 	switch packet[0] {
 	case 0x0:
-		return HandshakeC // or just empty message but currently for the sake of simplicity we just have this HandshakeC
+		if len(packet) > 5 {
+			return HandshakeC
+		}
+
+		return ServerStatusC
 	}
 
 	return Default

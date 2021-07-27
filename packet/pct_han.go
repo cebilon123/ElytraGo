@@ -23,7 +23,7 @@ type IServerHandler interface {
 // ClientHandler is handler for all packets which comes from client
 type ClientHandler struct {
 	Wg    *sync.WaitGroup
-	SChan <-chan IPacket
+	SChan chan<- IPacket
 }
 
 // Handle handles packets being send through channel for client
@@ -31,7 +31,14 @@ func (c *ClientHandler) Handle(pctChan <-chan IPacket) {
 	defer c.Wg.Done()
 	for pct := range pctChan {
 		fmt.Printf("Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", pct.GetPid(), pct.GetType(), pct.GetPayload(), string(pct.GetPayload()))
-		go TypeHandleFuncMap[pct.GetType()](pct, c.SChan) //TODO: here probably desync of communication
+
+		// execute func which is connected to this packet type
+		go func(pct IPacket) {
+			err := TypeHandleFuncMap[pct.GetType()](pct, c.SChan, c)
+			if err != nil {
+				//TODO Log here
+			}
+		}(pct) //TODO: here probably desync of communication
 	}
 }
 
