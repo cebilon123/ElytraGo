@@ -25,15 +25,12 @@ func (s Builder) Create() IBaseServerBuilder {
 }
 
 func (s Builder) Start() {
-	clSrvChan := packet.NewClSrvChan()
-	defer clSrvChan.Close()
-
-	// We are starting here to listen for packets on channels,
-	go clSrvChan.StartPacketListeningAndHandling()
+	wd := conn.NewWorkerDispatcher(make(chan packet.IPacket), make(chan packet.IPacket))
+	wd.SpawnWorkers()
+	defer wd.Close()
 
 	l, err := net.Listen("tcp", ":9999")
 	defer l.Close()
-
 	if err != nil {
 		return
 	}
@@ -43,7 +40,7 @@ func (s Builder) Start() {
 		if err != nil {
 			return
 		}
-		go conn.HandleConnection(c, *clSrvChan)
+		go conn.HandleConnection(c, wd)
 	}
 }
 

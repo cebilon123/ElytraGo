@@ -8,7 +8,7 @@ import (
 )
 
 // HandleConnection handles connection client->server and vice versa
-func HandleConnection(c net.Conn, clSrvChan packet.ClSrvChan) {
+func HandleConnection(c net.Conn, wd *WorkerDispatcher) {
 	defer c.Close()
 	fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
 
@@ -30,10 +30,6 @@ func HandleConnection(c net.Conn, clSrvChan packet.ClSrvChan) {
 
 		//Create packet based on bytes
 		pct := packet.NewPacket(pctBytes, true)
-
-		//Packets being send through channel in goroutine
-		go func() {
-			clSrvChan.PacketsFC <- pct
-		}()
+		wd.ClientPackets <- pct
 	}
 }
