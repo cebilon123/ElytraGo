@@ -1,11 +1,14 @@
 package packet
 
+import "net"
+
 // IPacket specifies signatures for packets of various kind.
 // Starting of handshake etc.
 type IPacket interface {
 	GetPayload() []byte
 	GetPid() byte
 	GetType() Type
+	GetConn() net.Conn
 }
 
 // Packet its base struct which represents Packet.
@@ -16,6 +19,7 @@ type Packet struct {
 	Type    Type
 	PId     byte
 	Payload []byte
+	c       net.Conn
 }
 
 // GetPayload returns packet payload.
@@ -31,6 +35,11 @@ func (p Packet) GetPid() byte {
 // GetType returns type of the packet
 func (p Packet) GetType() Type {
 	return p.Type
+}
+
+// GetConn returns current connection
+func (p Packet) GetConn() net.Conn {
+	return p.c
 }
 
 // Type is enum
@@ -50,7 +59,7 @@ const (
 // []byte which needs to be converted in later usages of value)
 //
 //	IMPORTANT: clientPct need to be set in case of correct choose of type of the packet
-func NewPacket(packet []byte, clientPct bool) IPacket {
+func NewPacket(packet []byte, clientPct bool, c net.Conn) IPacket {
 	var resolvePayload = func() []byte {
 		if len(packet) < 2 {
 			return make([]byte, 0)
@@ -70,6 +79,7 @@ func NewPacket(packet []byte, clientPct bool) IPacket {
 		Type:    resolvePctType(),
 		PId:     packet[0],
 		Payload: resolvePayload(),
+		c: c,
 	}
 }
 

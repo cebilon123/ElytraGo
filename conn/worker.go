@@ -1,6 +1,7 @@
 package conn
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/cebilon123/ElytraGo/packet"
 	"os"
@@ -16,6 +17,7 @@ type Worker struct {
 	quit chan bool
 }
 
+// NewWorker creates new instance of worker
 func NewWorker(quit chan bool, id int) *Worker {
 	return &Worker{quit: quit, id: id}
 }
@@ -26,6 +28,22 @@ func (w *Worker) Start(clientPackets chan packet.IPacket, serverPackets chan pac
 		select {
 		case cp := <-clientPackets:
 			fmt.Printf("Worker(%v): Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", w.id, cp.GetPid(), cp.GetType(), cp.GetPayload(), string(cp.GetPayload()))
+			if cp.GetType() == packet.ServerStatusC {
+
+				//JUST TEST
+				res := packet.CreateServerStatusResponse()
+				bytes,err := json.Marshal(res)
+				if err != nil {
+					fmt.Printf("%v", err)
+				}
+				bts := make([]byte,3)
+				bts[0] = 0xFF
+				bts[1] = 0x00
+				bts[2] = 0x00
+				bts = append(bts,bytes...)
+				fmt.Printf("%s", string(bts))
+				cp.GetConn().Write(bts)
+			}
 		case sp := <-serverPackets:
 			fmt.Printf("Worker(%v): Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", w.id, sp.GetPid(), sp.GetType(), sp.GetPayload(), string(sp.GetPayload()))
 		case <-w.quit:
@@ -34,21 +52,27 @@ func (w *Worker) Start(clientPackets chan packet.IPacket, serverPackets chan pac
 	}
 }
 
+// WorkerDispatcher dispatches workers as long as MaxWorkers let it to
 type WorkerDispatcher struct {
 	ClientPackets chan packet.IPacket
 	ServerPackets chan packet.IPacket
 	quit          chan bool
 }
 
+// Close kills all workers in safe way
 func (wd *WorkerDispatcher) Close() error {
 	wd.quit <- true
 	return nil
 }
 
+// NewWorkerDispatcher creates new WorkerDispatcher which
+// is responsible for handling work of all registered workers
 func NewWorkerDispatcher(clientPackets chan packet.IPacket, serverPackets chan packet.IPacket) *WorkerDispatcher {
 	return &WorkerDispatcher{ClientPackets: clientPackets, ServerPackets: serverPackets}
 }
 
+// SpawnWorkers spawns workers as long as maxW is greater
+// than available number of working workers.
 func (wd *WorkerDispatcher) SpawnWorkers() {
 	maxW, err := strconv.Atoi(maxWorkers)
 	//If somehow there is error while parsing max workers, just set it to default value

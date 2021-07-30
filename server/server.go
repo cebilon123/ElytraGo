@@ -26,7 +26,7 @@ func (s Builder) Create() IBaseServerBuilder {
 
 func (s Builder) Start() {
 	wd := conn.NewWorkerDispatcher(make(chan packet.IPacket), make(chan packet.IPacket))
-	wd.SpawnWorkers()
+	go wd.SpawnWorkers()
 	defer wd.Close()
 
 	l, err := net.Listen("tcp", ":9999")

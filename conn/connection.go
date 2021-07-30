@@ -9,7 +9,7 @@ import (
 
 // HandleConnection handles connection client->server and vice versa
 func HandleConnection(c net.Conn, wd *WorkerDispatcher) {
-	defer c.Close()
+	defer c.Close() //TODO: possible why app needs more and more ram
 	fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
 
 	for {
@@ -29,7 +29,7 @@ func HandleConnection(c net.Conn, wd *WorkerDispatcher) {
 		}
 
 		//Create packet based on bytes
-		pct := packet.NewPacket(pctBytes, true)
+		pct := packet.NewPacket(pctBytes, true, c)
 		wd.ClientPackets <- pct
 	}
 }
