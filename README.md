@@ -6,3 +6,6 @@ Project is in early stage, but I'm trying continuously update it with new lines 
 ****
 # Contribute 
 Feel free to create pull requests and issues. Help is always wanted!
+
+Feel free to add me on discord as well:
+`cebilon123#5653`
