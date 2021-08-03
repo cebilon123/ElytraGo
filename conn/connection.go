@@ -28,6 +28,10 @@ func HandleConnection(c net.Conn, wd *WorkerDispatcher) {
 			return
 		}
 
+		b := NewBufferWithBytes(pctBytes[5:])
+		res := b.PullVarInt()
+
+		fmt.Printf("%v",res)
 		//Create packet based on bytes
 		pct := packet.NewPacket(pctBytes, true, c)
 		wd.ClientPackets <- pct

@@ -1,7 +1,6 @@
 package conn
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/cebilon123/ElytraGo/packet"
 	"os"
@@ -28,22 +27,6 @@ func (w *Worker) Start(clientPackets chan packet.IPacket, serverPackets chan pac
 		select {
 		case cp := <-clientPackets:
 			fmt.Printf("Worker(%v): Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", w.id, cp.GetPid(), cp.GetType(), cp.GetPayload(), string(cp.GetPayload()))
-			if cp.GetType() == packet.ServerStatusC {
-
-				//JUST TEST
-				res := packet.CreateServerStatusResponse()
-				bytes,err := json.Marshal(res)
-				if err != nil {
-					fmt.Printf("%v", err)
-				}
-				bts := make([]byte,3)
-				bts[0] = 0xFF
-				bts[1] = 0x00
-				bts[2] = 0x00
-				bts = append(bts,bytes...)
-				fmt.Printf("%s", string(bts))
-				cp.GetConn().Write(bts)
-			}
 		case sp := <-serverPackets:
 			fmt.Printf("Worker(%v): Client-> PID: %v, Type: %v, Payload: %#x, String->: %s\n", w.id, sp.GetPid(), sp.GetType(), sp.GetPayload(), string(sp.GetPayload()))
 		case <-w.quit:

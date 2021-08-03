@@ -6,6 +6,7 @@ type Buffer interface {
 	PullVarInt() int32
 }
 
+// buffer is used to decode varInts and varLongs. iIndex is used to iterate over byte array
 type buffer struct {
 	iIndex int32
 	oIndex int32
@@ -46,9 +47,10 @@ func (b *buffer) pullNext() byte {
 	return next
 }
 
+// pullVariable pulls variable depending on given max (5 bytes for int and 10 bytes for long)
 func (b *buffer) pullVariable(max int) int64 {
 	var num int
-	var res int64
+	var res int64 // because we can get long as well from this function
 
 	for {
 		tmp := int64(b.pullNext())
@@ -58,6 +60,7 @@ func (b *buffer) pullVariable(max int) int64 {
 			panic("VarInt > " + strconv.Itoa(max))
 		}
 
+		// checking if first bit is 1, if is not, there is value returned from function
 		if tmp&0x80 != 0x80 {
 			break
 		}
