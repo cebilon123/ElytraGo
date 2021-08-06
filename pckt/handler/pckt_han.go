@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/cebilon123/ElytraGo/config"
 	"github.com/cebilon123/ElytraGo/pckt"
+	"log"
 	"net"
 	"os"
 	"strconv"
@@ -23,6 +24,7 @@ type PacketHandler struct {
 }
 
 func (p PacketHandler) HandleWithConnection(f PacketHandlerFunc) {
+	log.Printf("Handler (id: %d) executing %v", p.id, f)
 	_ = f
 }
 

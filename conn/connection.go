@@ -27,8 +27,10 @@ func HandleConnection(c net.Conn) {
 		h := <-handler.AvailableHandlers // pull any available handler from channel
 		go func() {
 			funcForPct := getHandlerForPacket(*pct) // choose handler func based on packet id and data
-			h.HandleWithConnection(funcForPct)      // handle this function
-			handler.AvailableHandlers <- h          // when all work is done we are putting handler back on queue so this way we have always equal amount of handlers
+			if pct.Len != 0 {                       // Check if packet contains any data
+				h.HandleWithConnection(funcForPct)
+			}
+			handler.AvailableHandlers <- h // when all work is done we are putting handler back on queue so this way we have always equal amount of handlers
 		}()
 	}
 }
