@@ -2,38 +2,45 @@ package conn
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
-	"github.com/cebilon123/ElytraGo/packet"
+	"io/ioutil"
+	"log"
 	"net"
 )
 
 // HandleConnection handles connection client->server and vice versa
 func HandleConnection(c net.Conn, wd *WorkerDispatcher) {
-	defer c.Close() //TODO: possible why app needs more and more ram
+	defer closeConn(c)
 	fmt.Printf("\nServing: %s\n", c.RemoteAddr().String())
 
 	for {
-		length := make([]byte, 1)
-		reader := bufio.NewReader(c)
-		_, err := reader.Read(length)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		pctBytes := readBytesFromConnection(c) // read all byes from connection
 
-		pctBytes := make([]byte, length[0])
-		_, err = reader.Read(pctBytes)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		pctLen, readIndex := binary.Varint(pctBytes) // pull var int to get length of pctId+data
+		pctId, readIndexId := binary.Varint(pctBytes[readIndex:]) // next pull pctId
+		pctData := pctBytes[(readIndexId + readIndex):] // rest of bytes are payload
 
-		b := NewBufferWithBytes(pctBytes[5:])
-		res := b.PullVarInt()
-
-		fmt.Printf("%v",res)
-		//Create packet based on bytes
-		pct := packet.NewPacket(pctBytes, true, c)
-		wd.ClientPackets <- pct
+		fmt.Printf("\n%d, %d\n", pctLen, pctId, pctData)
 	}
+}
+
+func closeConn(c net.Conn) {
+	func(c net.Conn) {
+		err := c.Close()
+		if err != nil {
+			log.Print(err.Error())
+		}
+	}(c)
+}
+
+func readBytesFromConnection(c net.Conn) []byte {
+	reader := bufio.NewReader(c)
+	pctBytes, err := ioutil.ReadAll(reader)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	return pctBytes
 }
