@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/cebilon123/ElytraGo/conn"
-	"github.com/cebilon123/ElytraGo/packet"
 	"net"
 )
 
@@ -13,7 +12,6 @@ type IBaseServerBuilder interface {
 }
 
 type Builder struct {
-
 }
 
 func NewBuilder() *Builder {
@@ -25,10 +23,6 @@ func (s Builder) Create() IBaseServerBuilder {
 }
 
 func (s Builder) Start() {
-	wd := conn.NewWorkerDispatcher(make(chan packet.IPacket), make(chan packet.IPacket))
-	go wd.SpawnWorkers()
-	defer wd.Close()
-
 	l, err := net.Listen("tcp", ":9999")
 	defer l.Close()
 	if err != nil {
@@ -40,8 +34,6 @@ func (s Builder) Start() {
 		if err != nil {
 			return
 		}
-		go conn.HandleConnection(c, wd)
+		go conn.HandleConnection(c)
 	}
 }
-
-
