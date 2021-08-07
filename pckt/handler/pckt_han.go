@@ -12,20 +12,20 @@ import (
 type PacketHandlerFunc func(pct pckt.Packet, c net.Conn)
 
 type GeneralPacketHandler interface {
-	HandleWithConnection(PacketHandlerFunc)
+	HandleWithConnection(PacketHandlerFunc, pckt.Packet, net.Conn)
 }
 
 var AvailableHandlers chan GeneralPacketHandler
 
 // PacketHandler responsible for handling packets.
 type PacketHandler struct {
-	id   int        // id of handler (mostly for debug only)
-	done chan bool  // done channel to inform for eventually close
+	id   int       // id of handler (mostly for debug only)
+	done chan bool // done channel to inform for eventually close
 }
 
-func (p PacketHandler) HandleWithConnection(f PacketHandlerFunc) {
+func (p PacketHandler) HandleWithConnection(f PacketHandlerFunc, pct pckt.Packet, c net.Conn) {
 	log.Printf("Handler (id: %d) executing %v", p.id, f)
-	_ = f
+	f(pct,c)
 }
 
 // init is responsible for initialize of handler package.
