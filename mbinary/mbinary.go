@@ -11,7 +11,7 @@ package mbinary
 // Important: Minecraft is coding bytes in a little bit different way than
 // protocol buffer so binary is useless.
 func VarInt(b []byte) (int64, int) {
-	var value = 0
+	var value int64 = 0
 	var bitOffset byte = 0
 	var currIndx = 0
 	var currentByte byte
@@ -22,12 +22,12 @@ func VarInt(b []byte) (int64, int) {
 		}
 
 		currentByte = b[currIndx]
-		value |= int((currentByte & 0b01111111) << bitOffset)
+		value |= int64(currentByte & 0x7F) << uint(bitOffset)
 
 		currIndx++
 		bitOffset += 7
 
-		if currentByte & 0b10000000 == 0 {
+		if currentByte & 0x80 != 0x80{
 			break
 		}
 	}
