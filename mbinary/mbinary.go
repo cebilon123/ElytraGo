@@ -22,15 +22,23 @@ func VarInt(b []byte) (int64, int) {
 		}
 
 		currentByte = b[currIndx]
-		value |= int64(currentByte & 0x7F) << uint(bitOffset)
+		value |= int64(currentByte&0x7F) << uint(bitOffset)
 
 		currIndx++
 		bitOffset += 7
 
-		if currentByte & 0x80 != 0x80{
+		if currentByte&0x80 != 0x80 {
 			break
 		}
 	}
 
 	return int64(value), currIndx
+}
+
+// VarText pulls text from given array
+func VarText(b []byte) (string, int64) {
+	size, readIndx := VarInt(b)
+	txt := b[readIndx : int64(readIndx)+size]
+
+	return string(txt), size
 }

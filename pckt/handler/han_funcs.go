@@ -6,7 +6,6 @@ import (
 	"net"
 )
 
-
 func GetFuncBasedOnPct(pct pckt.Packet) PacketHandlerFunc {
 	if pct.Id == 0 {
 		return handleHandshake
@@ -16,6 +15,8 @@ func GetFuncBasedOnPct(pct pckt.Packet) PacketHandlerFunc {
 }
 
 func handleHandshake(pct pckt.Packet, c net.Conn) {
-	prtclVer, readI := mbinary.VarInt(pct.Data)
-	println(prtclVer, readI)
+	prtclVer, readI := mbinary.VarInt(pct.Data)                           // protocol version
+	srvAddress, readITxt := mbinary.VarText(pct.Data[readI:])
+	nxtState, readI := mbinary.VarInt(pct.Data[(len(pct.Data) - readI):]) // next state identification
+	println(prtclVer, readI, nxtState,srvAddress, readITxt)
 }
