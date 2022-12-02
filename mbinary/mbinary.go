@@ -1,38 +1,37 @@
 package mbinary
 
+import (
+	"errors"
+	"log"
+)
+
+const SEGMENT_BITS = 0x7f
+const CONTINUE_BIT = 0x80
+
 // VarInt decodes an int64 from buf and returns that value and the
-// number of bytes read (> 0). If an error occurred, the value is 0
-// and the number of bytes n is <= 0 with the following meaning:
-//
-// 	n == 0: buf too small
-// 	n  < 0: value larger than 64 bits (overflow)
-// 	        and -n is the number of bytes read
-//
+// number of bytes read (> 0). If an error occurred, the value is -1
+// and the number of bytes n is -1
 // Important: Minecraft is coding bytes in a little bit different way than
 // protocol buffer so binary is useless.
 func VarInt(b []byte) (int64, int) {
-	var value int64 = 0
-	var bitOffset byte = 0
-	var currIndx = 0
+	value := int64(0)
+	position := 0
 	var currentByte byte
 
 	for {
-		if bitOffset == 35 {
-			return 0, 0
-		}
-
-		currentByte = b[currIndx]
-		value |= int64(currentByte&0x7F) << uint(bitOffset)
-
-		currIndx++
-		bitOffset += 7
-
-		if currentByte&0x80 != 0x80 {
+		currentByte = b[position]
+		value |= (int64(currentByte) & SEGMENT_BITS) << int64(position)
+		if (currentByte & CONTINUE_BIT) == 0 {
 			break
 		}
+		position += 7
+		if position >= 32 {
+			err := errors.New("VarInt to big")
+			log.Println(err)
+			return -1, -1
+		}
 	}
-
-	return int64(value), currIndx
+	return value, position
 }
 
 // VarText pulls text from given array
